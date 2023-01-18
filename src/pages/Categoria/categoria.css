@@ -1,0 +1,64 @@
+.container{
+    height:100%;
+    display:flex;
+    justify-content: center;
+    /* align-items: center; */
+    background-color: #121212;
+}
+.center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
+.titulo{
+    color: #FFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: -15%;
+
+}
+.titulo h1{
+    font-size: 50px;
+    font-family: 'Parisienne', cursive;
+
+}
+.titulo h3{
+    margin-left: 20%;
+    font-size: 25px;
+    font-family: 'Parisienne', cursive;
+
+}
+
+.topo{
+    display: flex;
+    flex-direction:row;
+    align-items: center;
+}
+.main{
+    /* display: row !important; */
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.box{
+    box-shadow: rgba(245, 242, 242, 0.35) 10px 5px 20px;
+
+}
+.group-btn{
+    justify-content: space-between;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+.logoLm{
+    justify-content: center !important;
+    align-items: center !important;
+    width: 330px;
+    height:170px;
+}
+
+.input-categoria{
+    width: 60%;
+}

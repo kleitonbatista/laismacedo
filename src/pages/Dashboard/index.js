@@ -85,7 +85,21 @@ export default function Dashboard() {
       setTotal((valor * quantidade).toFixed(2));
     }
   }
-
+  function limpar() {
+    setCodigo('');
+    setProduto('');
+    setQuantidade('');
+    setValor('');
+    setSugestaoMax('');
+    setSugestaoMin('');
+    setNumeracao('');
+    setValor('');
+    setTotal('');
+    setPercentual('');
+    setValorVenda('');
+    setLucroTotal('');
+    setLucroUnitario('');
+  }
   function salvar() {
     firebase.firestore().collection("produtos").add({
       codigo: codigo,
@@ -183,7 +197,7 @@ export default function Dashboard() {
             </CardContent>
             <CardActions className="group-btn">
               <Button onClick={salvar} className="btn-salvar" color="primary" variant="outlined">Salvar</Button>
-              <Button onClick={salvar} className="btn-salvar" variant="outlined">Limpar</Button>
+              <Button onClick={limpar} className="btn-salvar" variant="outlined">Limpar</Button>
 
             </CardActions>
           </Card>
