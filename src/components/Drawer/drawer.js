@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useContext, useState, useEffect } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -18,9 +18,18 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
+import CategoryIcon from '@mui/icons-material/Category';
+import DiamondIcon from '@mui/icons-material/Diamond';
 import "./drawer.css";
 // import { useTranslation } from "react-i18next";
 import logoLm from "../../assets/laisMacedo.png";
+import LogoutIcon from '@mui/icons-material/Logout';
+
+import { AuthContext } from "../../contexts/auth";
+// import { useNavigate } from "react-router-dom";
+import { Route, Redirect, Link } from "react-router-dom";
+
+
 
 <link
   rel="stylesheet"
@@ -76,7 +85,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 export default function PersistentDrawerLeft({ children }) {
   //   const { t } = useTranslation();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const { signOut } = useContext(AuthContext);
 
   //   const { logout, user } = React.useContext(AuthContext);
 
@@ -88,10 +98,11 @@ export default function PersistentDrawerLeft({ children }) {
     setOpen(false);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     console.log("akii");
-    console.log(navigator.language);
+    // console.log(navigator.language);
   }, []);
+
 
   return (
     <Box sx={{ display: "flex" }} className="bg">
@@ -99,6 +110,7 @@ export default function PersistentDrawerLeft({ children }) {
       <AppBar position="fixed" open={open}>
         <Toolbar className="top-bar">
           <IconButton
+            className="color-menu"
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
@@ -142,7 +154,23 @@ export default function PersistentDrawerLeft({ children }) {
         </DrawerHeader>
         <Divider />
         <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+          <Link to="/categoria" className="link-btn">
+            <ListItemButton>
+              <ListItemIcon>
+                <CategoryIcon />
+              </ListItemIcon>
+              <ListItemText primary="Categorias" />
+            </ListItemButton>
+          </Link>
+          <Link to="/dashboard" className="link-btn">
+            <ListItemButton>
+              <ListItemIcon>
+                <DiamondIcon />
+              </ListItemIcon>
+              <ListItemText primary="Cadastro Itens" />
+            </ListItemButton>
+          </Link>
+          {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton>
                 <ListItemIcon>
@@ -151,20 +179,17 @@ export default function PersistentDrawerLeft({ children }) {
                 <ListItemText primary={text} />
               </ListItemButton>
             </ListItem>
-          ))}
+          ))} */}
         </List>
         <Divider />
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+        <List className="btn-sair">
+          <ListItemButton onClick={(e) => signOut()}>
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary="Sair" />
+          </ListItemButton>
+
         </List>
       </Drawer>
       <Main open={open}>

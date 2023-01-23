@@ -1,6 +1,8 @@
 import { useState, useContext } from "react";
 import "./signin.css";
 import logo from "../../assets/logo.png";
+import logoLm from "../../assets/laisMacedo.png";
+
 import { Link } from "react-router-dom";
 
 import { AuthContext } from "../../contexts/auth";
@@ -22,7 +24,7 @@ function SignIn() {
     <div className="container-center">
       <div className="login">
         <div className="login-area">
-          <img src={logo} alt="logo do sistema" />
+          <img src={logoLm} alt="logo do sistema" />
         </div>
         <form onSubmit={handelSubmit}>
           <h1>Entrar</h1>

@@ -48,6 +48,9 @@ export default function Dashboard() {
   const [numeracao, setNumeracao] = useState();
   const [lucroUnitario, setLucroUnitario] = useState("");
   const [lucroTotal, setLucroTotal] = useState("");
+  const [listaCategorias, setListaCategorias] = useState([]);
+  const [loadCategoria, setLoadCategoria] = useState(true);
+  const [categoriaSelected, setCategoriaSelected] = useState(0);
 
   useEffect(() => {
     function calculaValorDeVenda() {
@@ -74,6 +77,39 @@ export default function Dashboard() {
       caculoLucroTotal();
     }
   }, [valorVenda]);
+
+  useEffect(() => {
+    async function loadCategoriasBD() {
+      await firebase.firestore().collection("categorias")
+        .get().then((snapshot) => {
+          let lista = [];
+          snapshot.forEach((doc) => {
+            if (doc.data().statusCategoria === 'A') {
+              lista.push({
+                id: doc.id,
+                nomeCategoria: doc.data().nomeCategoria
+              })
+            }
+          });
+
+          if (lista.length === 0) {
+            console.log("Nenhuma categoria encontrada no banco de dados");
+            setCategoriaSelected([{ id: 1, nomeCategoria: "Selecione" }])
+            setLoadCategoria(false);
+            return;
+          }
+
+          setListaCategorias(lista);
+          setLoadCategoria(false);
+
+        }).catch((err) => {
+          console.log("deu algum erro", err);
+          setLoadCategoria(false);
+          setCategoriaSelected([{ id: 1, nomeCategoria: "Selecione" }])
+        });
+    }
+    loadCategoriasBD();
+  }, [])
 
   function calculaTotal() {
     if (valor > 0 && quantidade > 0) {
@@ -125,13 +161,18 @@ export default function Dashboard() {
   const handleChange = (event) => {
     setAge(event.target.value);
   };
+  //chamado quando troca a categoria
+  function handleChangeCategorias(e) {
+    setCategoriaSelected(e.target.value);
+  }
+
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
   return (
     <PersistentDrawerLeft>
       <div className="container">
         <Container maxWidth="md" className="main">
-          
+
           <div className="box">
             <Card className={classes.root} variant="outlined">
               <CardContent>
@@ -174,14 +215,19 @@ export default function Dashboard() {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={age}
+                    value={categoriaSelected}
                     className="select"
-                    onChange={handleChange}
+                    onChange={handleChangeCategorias}
                   >
-                    <MenuItem value={10}>Colar</MenuItem>
+                    {listaCategorias.map((item, index) => {
+                      return (
+                        <MenuItem key={index} value={item.id}>{item.nomeCategoria}</MenuItem>
+                      );
+                    })}
+                    {/* <MenuItem value={10}>Colar</MenuItem>
                     <MenuItem value={20}>Brinco</MenuItem>
                     <MenuItem value={30}>Pingente</MenuItem>
-                    <MenuItem value={40}>Conjunto</MenuItem>
+                    <MenuItem value={40}>Conjunto</MenuItem> */}
                   </Select>
                 </div>
                 {/*  */}
@@ -289,7 +335,7 @@ export default function Dashboard() {
                   type="text"
                   label="Observações"
                   maxRows={4}
-                  className="space-height area-valor-space line"
+                  className="space-height area-valor-space line txt-area"
                   id="outlined-basic"
                   variant="standard"
                 />

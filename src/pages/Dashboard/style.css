@@ -36,6 +36,9 @@
     font-family: 'Parisienne', cursive;
 
 }
+.txt-area{
+    resize: none;
+}
 .form{
     background-color: #FFF;
     height: 90%;
@@ -65,8 +68,8 @@
 .logoLm{
     justify-content: center !important;
     align-items: center !important;
-    width: 330px;
-    height:170px;
+    width: 130px;
+    height: 70px;
 }
 .select{
     width: 35%;

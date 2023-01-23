@@ -16,17 +16,31 @@
 .bg {
   background-color: #121212;
 }
+.color-menu{
+  color: #FFF;
+}
+
+.link-btn{
+  background-color: #121212 !important;
+  color: #000;
+  text-decoration: none;
+}
 
 .titulo {
-  margin-left: 10%;
+  margin-left: 20% !important;
   padding: 0;
   font-size: 25px;
   font-family: "Parisienne", cursive;
   font-width: bold;
 }
 .sub-titulo {
+  color: #FFF;
   margin-left: 15%;
   padding: 0;
   font-size: 18px;
   font-family: "Parisienne", cursive;
+}
+.btn-sair{
+  position:absolute !important;
+  bottom:0; 
 }
