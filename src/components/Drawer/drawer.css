@@ -1,3 +1,32 @@
-.bg{
-    background-color: #121212;
+@import url("https://fonts.googleapis.com/css2?family=Parisienne&display=swap");
+.top-bar {
+  background-color: #121212;
+  box-shadow: rgba(245, 242, 242, 0.35) 10px 0px 10px;
+}
+.conjunto-titulo {
+  display: flex;
+  flex-direction: row;
+}
+.logoLm {
+  justify-content: center !important;
+  align-items: center !important;
+  width: 130px;
+  height: 60px;
+}
+.bg {
+  background-color: #121212;
+}
+
+.titulo {
+  margin-left: 10%;
+  padding: 0;
+  font-size: 25px;
+  font-family: "Parisienne", cursive;
+  font-width: bold;
+}
+.sub-titulo {
+  margin-left: 15%;
+  padding: 0;
+  font-size: 18px;
+  font-family: "Parisienne", cursive;
 }

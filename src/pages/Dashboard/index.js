@@ -13,7 +13,6 @@ import Typography from "@material-ui/core/Typography";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
-import logoLm from "../../assets/laisMacedo.png";
 
 import "./style.css";
 import PersistentDrawerLeft from "../../components/Drawer/drawer";
@@ -132,13 +131,7 @@ export default function Dashboard() {
     <PersistentDrawerLeft>
       <div className="container">
         <Container maxWidth="md" className="main">
-          <div className="titulo">
-            <img src={logoLm} className="logoLm" alt="logo do sistema" />
-            <div className="sub-titulo">
-              <h1>Laís Macedo</h1>
-              <h3>Joias e Acessórios</h3>
-            </div>
-          </div>
+          
           <div className="box">
             <Card className={classes.root} variant="outlined">
               <CardContent>
