@@ -20,6 +20,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import "./style.css";
 import PersistentDrawerLeft from "../../components/Drawer/drawer";
+import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,6 +63,47 @@ export default function Dashboard2() {
   const [loadCategoria, setLoadCategoria] = useState(true);
   const [categoriaSelected, setCategoriaSelected] = useState(0);
   const [saveLoad,setSaveLoad] = useState(false);
+
+  const {id} = useParams();
+
+  useEffect(()=>{
+    async function recuperarItemEdicao(){
+      await firebase.firestore().collection("produtos").doc(id).get().then((snapshot)=>{
+        let produto = {
+          id: snapshot.id,
+          categoriaId: snapshot.data().categoriaId,
+          codigo: snapshot.data().codigo,
+          descricaoProduto: snapshot.data().descricaoProduto,
+          numeracao: snapshot.data().numeracao,
+          observacao: snapshot.data().observacao,
+          percentual: snapshot.data().percentual,
+          quantidade: snapshot.data().quantidade,
+          sugestaoOne: snapshot.data().sugestaoOne,
+          total: snapshot.data().total,
+          valor: snapshot.data().valor,
+          valorVenda: snapshot.data().valorVenda
+
+        }
+        setCodigo(snapshot.data().codigo);
+        setCategoriaSelected(snapshot.data().categoriaId);
+        setProduto(snapshot.data().descricaoProduto);
+        setNumeracao(snapshot.data().numeracao);
+        setObservacao(snapshot.data().observacao);
+        setValor(snapshot.data().valor);
+        setPercentual(snapshot.data().percentual);
+        setQuantidade(snapshot.data().quantidade);
+        setTotal(snapshot.data().total);
+
+        console.log(produto)
+      }).catch((err)=>{
+        console.log("Erro ao recuperar produto para edição ", err);
+      })
+    }
+    if(id != undefined){
+      recuperarItemEdicao();
+    }
+
+  },[id]);
 
   useEffect(() => {
     function calculaValorDeVenda() {

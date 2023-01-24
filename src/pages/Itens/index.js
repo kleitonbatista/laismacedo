@@ -10,6 +10,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import './itens.css'
 import { Divider } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -118,7 +119,7 @@ export default function ListarItens() {
                                             <td data-label="Observações">{item.observacao}</td>
                                             <td data-label="#">
                                                 <button className="action" style={{ backgroundColor: '#3583f6' }}><SearchIcon color="#FFF" /></button>
-                                                <button className="action" style={{ backgroundColor: '#F6A935' }}><EditIcon color="#FFF" /></button>
+                                                <Link to={`/cadastro-item/${item.id}`}>  <button className="action" style={{ backgroundColor: '#F6A935' }}><EditIcon color="#FFF" /></button></Link>
                                             </td>
                                         </tr>);
                                     })}

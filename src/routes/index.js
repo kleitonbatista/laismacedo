@@ -16,7 +16,7 @@ export default function Routes(){
             <Route exact path="/cadastro" component={SignUp}/>
             <Route exact isPrivate={true} path="/categoria" component={Categoria}/>
             <Route exact isPrivate={true} path="/dashboard" component={Dashboard}/>
-            <Route exact isPrivate={true} path="/cadastro-item" component={CadastroItem}/>
+            <Route exact isPrivate={true} path="/cadastro-item/:id?" component={CadastroItem}/>
             <Route exact isPrivate={true} path="/listar-itens" component={ListarItens}/>
 
 
