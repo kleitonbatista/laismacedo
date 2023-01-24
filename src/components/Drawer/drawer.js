@@ -13,6 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -162,12 +163,20 @@ export default function PersistentDrawerLeft({ children }) {
               <ListItemText primary="Categorias" />
             </ListItemButton>
           </Link>
-          <Link to="/dashboard" className="link-btn">
+          <Link to="/cadastro-item" className="link-btn">
             <ListItemButton>
               <ListItemIcon>
                 <DiamondIcon />
               </ListItemIcon>
               <ListItemText primary="Cadastro Itens" />
+            </ListItemButton>
+          </Link>
+          <Link to="/listar-itens" className="link-btn">
+            <ListItemButton>
+              <ListItemIcon>
+                <FormatListBulletedIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Listar Itens"/>
             </ListItemButton>
           </Link>
           {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (

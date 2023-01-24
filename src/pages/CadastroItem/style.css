@@ -1,0 +1,51 @@
+.container{
+    height:100%;
+    display:flex;
+    justify-content: center;
+    /* align-items: center; */
+    background-color: #121212;
+}
+.center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
+
+
+.txt-area{
+    resize: none;
+}
+ 
+
+.main{
+    /* display: row !important; */
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+}
+.box{
+    box-shadow: rgba(245, 242, 242, 0.35) 10px 5px 20px;
+    background-color: #FFF;
+    width: 90%;
+    margin-left: 5%;
+    padding-left: 5%;
+    border-radius: 15px;
+
+}
+
+.input{
+    width: 90%;
+}
+.group-btn{
+    justify-content: space-between;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.btn-salvar{
+    margin-top: 30px;
+}
+

@@ -14,12 +14,22 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+
+
+
 import "./style.css";
 import PersistentDrawerLeft from "../../components/Drawer/drawer";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     minWidth: 275,
+    flexGrow: 1
+  }, paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
   },
   bullet: {
     display: "inline-block",
@@ -32,7 +42,7 @@ const useStyles = makeStyles({
   pos: {
     marginBottom: 12,
   },
-});
+}));
 
 export default function Dashboard() {
   const { signOut } = useContext(AuthContext);
@@ -48,6 +58,7 @@ export default function Dashboard() {
   const [numeracao, setNumeracao] = useState();
   const [lucroUnitario, setLucroUnitario] = useState("");
   const [lucroTotal, setLucroTotal] = useState("");
+  const [observacao, setObservacao] = useState("");
   const [listaCategorias, setListaCategorias] = useState([]);
   const [loadCategoria, setLoadCategoria] = useState(true);
   const [categoriaSelected, setCategoriaSelected] = useState(0);
@@ -130,9 +141,16 @@ export default function Dashboard() {
     setValorVenda("");
     setLucroTotal("");
     setLucroUnitario("");
+    setObservacao("");
+    setCategoriaSelected(0);
   }
-  function salvar() {
-    firebase
+  function validacao() {
+
+  }
+  async function salvar(e) {
+    e.preventDefault();
+
+    await firebase
       .firestore()
       .collection("produtos")
       .add({
@@ -146,10 +164,12 @@ export default function Dashboard() {
         sugestaoOne: sugestaoMin,
         sugestaoTwo: sugestaoMax,
         numeracao: numeracao,
+        categoriaId: categoriaSelected,
+        observacao: observacao
       })
       .then((res) => {
-        console.log(res);
         toast.success("salvo com sucesso! " + res.id);
+        limpar();
       })
       .catch((err) => {
         console.log("erro");
@@ -172,196 +192,210 @@ export default function Dashboard() {
     <PersistentDrawerLeft>
       <div className="container">
         <Container maxWidth="md" className="main">
+          <form className={classes.root} autoComplete="off" onSubmit={salvar}>
 
-          <div className="box">
-            <Card className={classes.root} variant="outlined">
-              <CardContent>
-                <span className="center">
-                  <Typography
-                    className={classes.title}
-                    color="textSecondary"
-                    gutterBottom
-                  >
-                    <span className="center">
-                      Laís Macedo Joias e Acessorios
-                    </span>
+            <div className="box">
+              <Card className={classes.root} variant="outlined">
+                <CardContent>
+                  <span className="center">
+                    <Typography
+                      className={classes.title}
+                      color="textSecondary"
+                      gutterBottom
+                    >
+                      <span className="center">
+                        Laís Macedo Joias e Acessorios
+                      </span>
+                    </Typography>
+                  </span>
+                  <Typography variant="h5" className="center" component="h2">
+                    Cadastro de Itens
                   </Typography>
-                </span>
-                <Typography variant="h5" className="center" component="h2">
-                  Cadastro de Itens
-                </Typography>
-                <Typography className={classes.pos} color="textSecondary">
-                  {/* adjective */}
-                </Typography>
-                {/* <Typography variant="body2" > */}
-                <div className="topo">
+                  <Typography className={classes.pos} color="textSecondary">
+                    {/* adjective */}
+                  </Typography>
+                  {/* <Typography variant="body2" > */}
+
+                  
+                  <div className="topo">
+                    <TextField
+                      type="number"
+                      label="Código"
+                      onChange={(e) => setCodigo(e.target.value)}
+                      value={codigo}
+                      id="outlined-basic"
+                      variant="standard"
+                    // helperText="Código do produto é obrigatório"
+                    // required
+                    />
+
+                    {/*  */}
+                    <InputLabel
+                      // required
+                      id="demo-simple-select-label"
+                      className="lbl-select"
+                    >
+                      Categoria
+                    </InputLabel>
+
+                    <Select
+                      // required
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={categoriaSelected}
+                      className="select"
+                      onChange={handleChangeCategorias}
+                    >
+                      {listaCategorias.map((item, index) => {
+                        return (
+                          <MenuItem key={index} value={item.id}>{item.nomeCategoria}</MenuItem>
+                        );
+                      })}
+                   
+                    </Select>
+                  </div>
+                  {/*  */}
+                  <br />
+                  
                   <TextField
-                    type="number"
-                    label="Código"
-                    onChange={(e) => setCodigo(e.target.value)}
-                    value={codigo}
+                    // required
+                    className="largura space-height"
+                    type="text"
+                    label="Produto"
+                    onChange={(e) => setProduto(e.target.value)}
+                    value={produto}
                     id="outlined-basic"
                     variant="standard"
                   />
-
-                  {/*  */}
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    className="lbl-select"
+                  <br />
+                  <div className="conjunto-valor"></div>
+                  <TextField
+                    // required
+                    type="number"
+                    label="Quantidade"
+                    onChange={(e) => setQuantidade(e.target.value)}
+                    value={quantidade}
+                    className="space-height"
+                    id="outlined-basic"
+                    variant="standard"
+                  />
+                  <TextField
+                    // required
+                    type="text"
+                    label="Valor"
+                    onChange={(e) => {
+                      setValor(e.target.value);
+                    }}
+                    onKeyUp={calculaTotal}
+                    value={valor}
+                    className=" space-height"
+                    id="outlined-basic"
+                    variant="standard"
+                  />
+                  {total > 0 && (
+                    <>
+                      <TextField
+                        type="text"
+                        label="Total"
+                        value={total}
+                        className=" space-height"
+                        id="outlined-basic"
+                        variant="standard"
+                      />
+                      <br />
+                      <TextField
+                        type="text"
+                        label="Percentual %"
+                        onChange={(e) => setPercentual(e.target.value)}
+                        value={percentaul}
+                        className="space-height"
+                        id="outlined-basic"
+                        variant="standard"
+                      />
+                      <TextField
+                        type="text"
+                        label="Venda Unitário"
+                        onChange={(e) => setValorVenda(e.target.value)}
+                        value={valorVenda}
+                        className="space-height"
+                        id="outlined-basic"
+                        variant="standard"
+                      />
+                      <TextField
+                        type="text"
+                        label="Valor Sugerido"
+                        value={sugestaoMin}
+                        className=" space-height"
+                        id="outlined-basic"
+                        variant="standard"
+                      />
+                      <br />
+                      <TextField
+                        type="text"
+                        label="Lucro Unitário"
+                        value={lucroUnitario}
+                        className="space-height"
+                        id="outlined-basic"
+                        variant="standard"
+                      />
+                      <TextField
+                        type="text"
+                        label="Lucro Total"
+                        value={lucroTotal}
+                        className="area-valor-space space-height"
+                        id="outlined-basic"
+                        variant="standard"
+                      />
+                    </>
+                  )}
+                  {/* <TextField type="text" label="Valor Sugerido 2" onChange={(e) => setSugestaoMax(e.target.value)} value={sugestaoMax} className="" id="outlined-basic" variant="standard" /> */}
+                  <br />
+                  <TextField
+                    type="number"
+                    label="Numeração"
+                    onChange={(e) => setNumeracao(e.target.value)}
+                    value={numeracao}
+                    className="space-height"
+                    id="outlined-basic"
+                    variant="standard"
+                  />
+                  <TextField
+                    multiline
+                    type="text"
+                    label="Observações"
+                    value={observacao}
+                    onChange={(e) => setObservacao(e.target.value)}
+                    maxRows={4}
+                    className="space-height area-valor-space line txt-area"
+                    id="outlined-basic"
+                    variant="standard"
+                  />
+                  {/* </Typography> */}
+                </CardContent>
+                <CardActions className="group-btn">
+                  <Button
+                    onClick={salvar}
+                    className="btn-salvar"
+                    color="primary"
+                    variant="contained"
                   >
-                    Categoria
-                  </InputLabel>
-
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={categoriaSelected}
-                    className="select"
-                    onChange={handleChangeCategorias}
+                    Salvar
+                  </Button>
+                  <Button
+                    onClick={limpar}
+                    className="btn-salvar"
+                    variant="contained"
+                    color="secondary"
                   >
-                    {listaCategorias.map((item, index) => {
-                      return (
-                        <MenuItem key={index} value={item.id}>{item.nomeCategoria}</MenuItem>
-                      );
-                    })}
-                    {/* <MenuItem value={10}>Colar</MenuItem>
-                    <MenuItem value={20}>Brinco</MenuItem>
-                    <MenuItem value={30}>Pingente</MenuItem>
-                    <MenuItem value={40}>Conjunto</MenuItem> */}
-                  </Select>
-                </div>
-                {/*  */}
-                <br />
-                <TextField
-                  className="largura space-height"
-                  type="text"
-                  label="Produto"
-                  onChange={(e) => setProduto(e.target.value)}
-                  value={produto}
-                  id="outlined-basic"
-                  variant="standard"
-                />
-                <br />
-                <TextField
-                  type="number"
-                  label="Quantidade"
-                  onChange={(e) => setQuantidade(e.target.value)}
-                  value={quantidade}
-                  className="space-height"
-                  id="outlined-basic"
-                  variant="standard"
-                />
-                <TextField
-                  type="text"
-                  label="Valor"
-                  onChange={(e) => {
-                    setValor(e.target.value);
-                  }}
-                  onKeyUp={calculaTotal}
-                  value={valor}
-                  className="area-valor-space space-height"
-                  id="outlined-basic"
-                  variant="standard"
-                />
-                {total > 0 && (
-                  <>
-                    <TextField
-                      type="text"
-                      label="Total"
-                      value={total}
-                      className="area-valor-space space-height"
-                      id="outlined-basic"
-                      variant="standard"
-                    />
-                    <br />
-                    <TextField
-                      type="text"
-                      label="Percentual %"
-                      onChange={(e) => setPercentual(e.target.value)}
-                      value={percentaul}
-                      className="space-height"
-                      id="outlined-basic"
-                      variant="standard"
-                    />
-                    <TextField
-                      type="text"
-                      label="Venda Unitário"
-                      onChange={(e) => setValorVenda(e.target.value)}
-                      value={valorVenda}
-                      className="area-valor-space space-height"
-                      id="outlined-basic"
-                      variant="standard"
-                    />
-                    <TextField
-                      type="text"
-                      label="Valor Sugerido"
-                      value={sugestaoMin}
-                      className="area-valor-space space-height"
-                      id="outlined-basic"
-                      variant="standard"
-                    />
-                    <br />
-                    <TextField
-                      type="text"
-                      label="Lucro Unitário"
-                      value={lucroUnitario}
-                      className="space-height"
-                      id="outlined-basic"
-                      variant="standard"
-                    />
-                    <TextField
-                      type="text"
-                      label="Lucro Total"
-                      value={lucroTotal}
-                      className="area-valor-space space-height"
-                      id="outlined-basic"
-                      variant="standard"
-                    />
-                  </>
-                )}
-                {/* <TextField type="text" label="Valor Sugerido 2" onChange={(e) => setSugestaoMax(e.target.value)} value={sugestaoMax} className="" id="outlined-basic" variant="standard" /> */}
-                <br />
-                <TextField
-                  type="number"
-                  label="Numeração"
-                  onChange={(e) => setNumeracao(e.target.value)}
-                  value={numeracao}
-                  className="space-height"
-                  id="outlined-basic"
-                  variant="standard"
-                />
-                <TextField
-                  multiline
-                  type="text"
-                  label="Observações"
-                  maxRows={4}
-                  className="space-height area-valor-space line txt-area"
-                  id="outlined-basic"
-                  variant="standard"
-                />
-                {/* </Typography> */}
-              </CardContent>
-              <CardActions className="group-btn">
-                <Button
-                  onClick={salvar}
-                  className="btn-salvar"
-                  color="primary"
-                  variant="outlined"
-                >
-                  Salvar
-                </Button>
-                <Button
-                  onClick={limpar}
-                  className="btn-salvar"
-                  variant="outlined"
-                >
-                  Limpar
-                </Button>
-              </CardActions>
-            </Card>
-          </div>
+                    Limpar
+                  </Button>
+                </CardActions>
+              </Card>
+            </div>
+          </form>
+
         </Container>
-      </div>
-    </PersistentDrawerLeft>
+      </div >
+    </PersistentDrawerLeft >
   );
 }
