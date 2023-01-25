@@ -7,6 +7,7 @@ import { useContext, useState, useEffect } from "react";
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import InputAdornment from '@mui/material/InputAdornment';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 import './itens.css'
 import { Divider } from '@mui/material';
@@ -118,6 +119,7 @@ export default function ListarItens() {
                                             <td data-label="Quantidade">{item.quantidade}</td>
                                             <td data-label="Observações">{item.observacao}</td>
                                             <td data-label="#">
+                                                <Link to={`/registrar-venda/${item.id}`} className="action" style={{backgroundColor: '#22BB33', padding: 5}} ><AttachMoneyIcon /></Link>
                                                 <button className="action" style={{ backgroundColor: '#3583f6' }}><SearchIcon color="#FFF" /></button>
                                                 <Link to={`/cadastro-item/${item.id}`}>  <button className="action" style={{ backgroundColor: '#F6A935' }}><EditIcon color="#FFF" /></button></Link>
                                             </td>

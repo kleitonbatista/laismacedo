@@ -11,12 +11,9 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import InputAdornment from '@mui/material/InputAdornment';
-
-
-
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import InputAdornment from "@mui/material/InputAdornment";
 
 import "./style.css";
 import PersistentDrawerLeft from "../../components/Drawer/drawer";
@@ -25,10 +22,11 @@ import { useParams } from "react-router-dom";
 const useStyles = makeStyles((theme) => ({
   root: {
     minWidth: 275,
-    flexGrow: 1
-  }, paper: {
+    flexGrow: 1,
+  },
+  paper: {
     padding: theme.spacing(2),
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.palette.text.secondary,
   },
   bullet: {
@@ -62,48 +60,55 @@ export default function Dashboard2() {
   const [listaCategorias, setListaCategorias] = useState([]);
   const [loadCategoria, setLoadCategoria] = useState(true);
   const [categoriaSelected, setCategoriaSelected] = useState(0);
-  const [saveLoad,setSaveLoad] = useState(false);
+  const [saveLoad, setSaveLoad] = useState(false);
+  const [itemId, setItemId] = useState(null);
 
-  const {id} = useParams();
+  // id do produto a ser editado
+  const { id } = useParams();
 
-  useEffect(()=>{
-    async function recuperarItemEdicao(){
-      await firebase.firestore().collection("produtos").doc(id).get().then((snapshot)=>{
-        let produto = {
-          id: snapshot.id,
-          categoriaId: snapshot.data().categoriaId,
-          codigo: snapshot.data().codigo,
-          descricaoProduto: snapshot.data().descricaoProduto,
-          numeracao: snapshot.data().numeracao,
-          observacao: snapshot.data().observacao,
-          percentual: snapshot.data().percentual,
-          quantidade: snapshot.data().quantidade,
-          sugestaoOne: snapshot.data().sugestaoOne,
-          total: snapshot.data().total,
-          valor: snapshot.data().valor,
-          valorVenda: snapshot.data().valorVenda
+  useEffect(() => {
+    async function recuperarItemEdicao() {
+      await firebase
+        .firestore()
+        .collection("produtos")
+        .doc(id)
+        .get()
+        .then((snapshot) => {
+          let produto = {
+            id: snapshot.id,
+            categoriaId: snapshot.data().categoriaId,
+            codigo: snapshot.data().codigo,
+            descricaoProduto: snapshot.data().descricaoProduto,
+            numeracao: snapshot.data().numeracao,
+            observacao: snapshot.data().observacao,
+            percentual: snapshot.data().percentual,
+            quantidade: snapshot.data().quantidade,
+            sugestaoOne: snapshot.data().sugestaoOne,
+            total: snapshot.data().total,
+            valor: snapshot.data().valor,
+            valorVenda: snapshot.data().valorVenda,
+          };
+          setCodigo(snapshot.data().codigo);
+          setCategoriaSelected(snapshot.data().categoriaId);
+          setProduto(snapshot.data().descricaoProduto);
+          setNumeracao(snapshot.data().numeracao);
+          setObservacao(snapshot.data().observacao);
+          setValor(snapshot.data().valor);
+          setPercentual(snapshot.data().percentual);
+          setQuantidade(snapshot.data().quantidade);
+          setTotal(snapshot.data().total);
 
-        }
-        setCodigo(snapshot.data().codigo);
-        setCategoriaSelected(snapshot.data().categoriaId);
-        setProduto(snapshot.data().descricaoProduto);
-        setNumeracao(snapshot.data().numeracao);
-        setObservacao(snapshot.data().observacao);
-        setValor(snapshot.data().valor);
-        setPercentual(snapshot.data().percentual);
-        setQuantidade(snapshot.data().quantidade);
-        setTotal(snapshot.data().total);
-
-        console.log(produto)
-      }).catch((err)=>{
-        console.log("Erro ao recuperar produto para edição ", err);
-      })
+          console.log(produto);
+        })
+        .catch((err) => {
+          console.log("Erro ao recuperar produto para edição ", err);
+        });
     }
-    if(id != undefined){
+    if (id != undefined) {
+      setItemId(id);
       recuperarItemEdicao();
     }
-
-  },[id]);
+  }, [id]);
 
   useEffect(() => {
     function calculaValorDeVenda() {
@@ -133,36 +138,39 @@ export default function Dashboard2() {
 
   useEffect(() => {
     async function loadCategoriasBD() {
-      await firebase.firestore().collection("categorias")
-        .get().then((snapshot) => {
+      await firebase
+        .firestore()
+        .collection("categorias")
+        .get()
+        .then((snapshot) => {
           let lista = [];
           snapshot.forEach((doc) => {
-            if (doc.data().statusCategoria === 'A') {
+            if (doc.data().statusCategoria === "A") {
               lista.push({
                 id: doc.id,
-                nomeCategoria: doc.data().nomeCategoria
-              })
+                nomeCategoria: doc.data().nomeCategoria,
+              });
             }
           });
 
           if (lista.length === 0) {
             console.log("Nenhuma categoria encontrada no banco de dados");
-            setCategoriaSelected([{ id: 1, nomeCategoria: "Selecione" }])
+            setCategoriaSelected([{ id: 1, nomeCategoria: "Selecione" }]);
             setLoadCategoria(false);
             return;
           }
 
           setListaCategorias(lista);
           setLoadCategoria(false);
-
-        }).catch((err) => {
+        })
+        .catch((err) => {
           console.log("deu algum erro", err);
           setLoadCategoria(false);
-          setCategoriaSelected([{ id: 1, nomeCategoria: "Selecione" }])
+          setCategoriaSelected([{ id: 1, nomeCategoria: "Selecione" }]);
         });
     }
     loadCategoriasBD();
-  }, [])
+  }, []);
 
   function calculaTotal() {
     if (valor > 0 && quantidade > 0) {
@@ -185,6 +193,7 @@ export default function Dashboard2() {
     setLucroUnitario("");
     setObservacao("");
     setCategoriaSelected(0);
+    setItemId(null);
   }
   function validacao() {
     console.log(categoriaSelected);
@@ -218,8 +227,42 @@ export default function Dashboard2() {
     }
     return true;
   }
+  async function atualizaItem() {
+    if (!validacao()) {
+      return false;
+    } else {
+      await firebase.firestore().collection("produtos").doc(itemId).update({
+        codigo: codigo,
+        descricaoProduto: produto,
+        quantidade: quantidade,
+        valor: valor,
+        total: total,
+        percentual: percentaul,
+        valorVenda: valorVenda,
+        sugestaoOne: sugestaoMin,
+        sugestaoTwo: sugestaoMax,
+        numeracao: numeracao,
+        categoriaId: categoriaSelected,
+        observacao: observacao,
+      }).then((res)=>{
+        toast.success("Item atualizado com sucesso!");
+        setSaveLoad(false);
+        limpar();
+      }).catch((err)=>{
+        toast.error("Falha ao atualizar");
+        console.log("Erro ao tentar atualizar o registro ", err);
+        setSaveLoad(false);
+
+      });
+    }
+  }
   async function salvar(e) {
     e.preventDefault();
+    if (itemId) {
+      atualizaItem();
+      setSaveLoad(true);
+      return;
+    }
     if (!validacao()) {
       return false;
     } else {
@@ -239,7 +282,7 @@ export default function Dashboard2() {
           sugestaoTwo: sugestaoMax,
           numeracao: numeracao,
           categoriaId: categoriaSelected,
-          observacao: observacao
+          observacao: observacao,
         })
         .then((res) => {
           toast.success("salvo com sucesso! " + res.id);
@@ -266,14 +309,15 @@ export default function Dashboard2() {
         <div className={classes.root}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-
-              <Paper className={classes.paper}> <span className="center">
-                Laís Macedo Joias e Acessorios
-                <br />
-                {/* <Typography variant="h5" className="center" component="h2"> */}
-                Cadastro de Itens
-                {/* </Typography> */}
-              </span>
+              <Paper className={classes.paper}>
+                {" "}
+                <span className="center">
+                  Laís Macedo Joias e Acessorios
+                  <br />
+                  {/* <Typography variant="h5" className="center" component="h2"> */}
+                  Cadastro de Itens
+                  {/* </Typography> */}
+                </span>
               </Paper>
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -281,14 +325,13 @@ export default function Dashboard2() {
               <TextField
                 type="number"
                 label="Código"
-
                 className="input"
                 onChange={(e) => setCodigo(e.target.value)}
                 value={codigo}
                 id="outlined-basic"
                 variant="standard"
-              // helperText="Código do produto é obrigatório"
-              // required
+                // helperText="Código do produto é obrigatório"
+                // required
               />
               {/* </Paper> */}
             </Grid>
@@ -312,10 +355,11 @@ export default function Dashboard2() {
               >
                 {listaCategorias.map((item, index) => {
                   return (
-                    <MenuItem key={index} value={item.id}>{item.nomeCategoria}</MenuItem>
+                    <MenuItem key={index} value={item.id}>
+                      {item.nomeCategoria}
+                    </MenuItem>
                   );
                 })}
-
               </Select>
               {/* </Paper> */}
             </Grid>
@@ -324,7 +368,7 @@ export default function Dashboard2() {
               <TextField
                 // required
                 className="input"
-                // fullWidth 
+                // fullWidth
                 type="text"
                 label="Produto"
                 onChange={(e) => setProduto(e.target.value)}
@@ -352,7 +396,9 @@ export default function Dashboard2() {
                 type="text"
                 label="Valor"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
                 }}
                 onChange={(e) => {
                   setValor(e.target.value);
@@ -362,13 +408,16 @@ export default function Dashboard2() {
                 className="input"
                 id="outlined-basic"
                 variant="standard"
-              />            </Grid>
+              />{" "}
+            </Grid>
             <Grid item xs={6} sm={3}>
               <TextField
                 type="text"
                 label="Total"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
                 }}
                 value={total}
                 className="input"
@@ -381,7 +430,9 @@ export default function Dashboard2() {
                 type="text"
                 label="Percentual %"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">%</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">%</InputAdornment>
+                  ),
                 }}
                 onChange={(e) => setPercentual(e.target.value)}
                 value={percentaul}
@@ -395,7 +446,9 @@ export default function Dashboard2() {
                 type="text"
                 label="Venda Unitário"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
                 }}
                 onChange={(e) => setValorVenda(e.target.value)}
                 value={valorVenda}
@@ -409,7 +462,9 @@ export default function Dashboard2() {
                 type="text"
                 label="Valor Sugerido"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
                 }}
                 value={sugestaoMin}
                 className="input"
@@ -423,7 +478,9 @@ export default function Dashboard2() {
                 label="Lucro Unitário"
                 value={lucroUnitario}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
                 }}
                 className="input"
                 id="outlined-basic"
@@ -435,7 +492,9 @@ export default function Dashboard2() {
                 type="text"
                 label="Lucro Total"
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">R$</InputAdornment>
+                  ),
                 }}
                 value={lucroTotal}
                 className="input"
@@ -476,7 +535,7 @@ export default function Dashboard2() {
                   variant="contained"
                   disabled={saveLoad}
                 >
-                  {saveLoad ? "Aguarde ..." : "Salvar"}
+                  {saveLoad ? "Aguarde ..." : (itemId) ? "Atualizar" : "Salvar"}
                 </Button>
                 <Button
                   onClick={limpar}
@@ -491,6 +550,6 @@ export default function Dashboard2() {
           </Grid>
         </div>
       </div>
-    </PersistentDrawerLeft >
+    </PersistentDrawerLeft>
   );
 }
