@@ -17,6 +17,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 import Titulo from "../../components/Titulo/titulo.js";
 import { toast } from "react-toastify";
+import InputAdornment from "@mui/material/InputAdornment";
 
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -184,198 +185,245 @@ export default function RegistrarVenda() {
       if (parseFloat(valorVenda) > 0 && quantidadeParcelaSelected > 0) {
         let valorDaParcela =
           (valorVenda - parseFloat(valorEntrada)) / quantidadeParcelaSelected;
-        setValorParcela(valorDaParcela);
+        setValorParcela(valorDaParcela.toFixed(2));
 
         let descricaoPag =
-          (valorEntrada > 0 ? `R$ ${valorEntrada} + ` : "") +
-          `${quantidadeParcelaSelected}x R$ ${valorDaParcela}`;
+          (valorEntrada > 0 ? `R$ ${valorEntrada.toFixed(2)} + ` : "") +
+          `${quantidadeParcelaSelected}x R$ ${valorDaParcela.toFixed(2)}`;
 
         setDescricaoFormaPagamento(descricaoPag);
       }
     }
     calculoValorParcela();
   }, [valorEntrada, valorVenda, quantidadeParcelaSelected]);
+
+  async function salvarVenda(e){
+    let venda = {
+      produtoId : produto.id ,
+      categoriaId: produto.categoriaId,
+      codigoProduto: produto.codigo,
+      descricaoProduto: produto.descricaoProduto,
+      percentualPrevisto: produto.percentual,
+      valorOriginal: produto.valor,
+      valorPrevistoVenda: produto.valorVenda,
+      valorVendaReal : valorVenda,
+      formaPagamento: formaPagamentoSelected,
+      quantidadeParcela: quantidadeParcelaSelected,
+      dataVenda: "",
+      dataPrimeiraParcela: "",
+      valorEntrada:  valorEntrada,
+      cliente : "",
+      contatoCliente : "",
+      recebidoCompleto : true,
+      quantidadeItemVendido : 1
+    }
+    await firebase.firestore().collection("venda").add(venda).then((res)=>console.log(res)).catch((err)=>console.log(err))
+    alert("salvar");
+    e.preventdefault();
+
+    console.log(produto);
+  }
   return (
     <PersistentDrawerLeft>
       <div className="container main box center">
         <div className={classes.root}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Paper className={classes.paper}>
-                {" "}
-                <span className="center">
-                  Laís Macedo Joias e Acessorios
-                  <br />
-                  {/* <Typography variant="h5" className="center" component="h2"> */}
-                  Cadastro de Itens
-                  {/* </Typography> */}
-                </span>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <h2>Produto</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Categoria</th>
-                    <th scope="col">Código</th>
-                    <th scope="col">Produto</th>
-                    <th scope="col">Valor Venda</th>
-                    <th scope="col">Estoque</th>
-                    <th scope="col">Número</th>
-                    <th scope="col">#</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="Categoria">{produto.categoria}</td>
-                    <td data-label="Código">{produto.codigo}</td>
-                    <td data-label="Produto">{produto.descricaoProduto}</td>
-                    <td data-label="Valor Venda">{produto.valorVenda}</td>
-                    <td data-label="Estoque">{produto.quantidade}</td>
-                    <td data-label="Número">{produto.numeracao}</td>
-                    <td data-label="Ação"></td>
-                  </tr>
-                </tbody>
-              </table>
-            </Grid>
+          <form >
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                  {" "}
+                  <span className="center">
+                    Laís Macedo Joias e Acessorios
+                    <br />
+                    {/* <Typography variant="h5" className="center" component="h2"> */}
+                    Cadastro de Itens
+                    {/* </Typography> */}
+                  </span>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <h2>Produto</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Categoria</th>
+                      <th scope="col">Código</th>
+                      <th scope="col">Produto</th>
+                      <th scope="col">Valor Venda</th>
+                      <th scope="col">Estoque</th>
+                      <th scope="col">Número</th>
+                      <th scope="col">#</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-label="Categoria">{produto.categoria}</td>
+                      <td data-label="Código">{produto.codigo}</td>
+                      <td data-label="Produto">{produto.descricaoProduto}</td>
+                      <td data-label="Valor Venda">{produto.valorVenda}</td>
+                      <td data-label="Estoque">{produto.quantidade}</td>
+                      <td data-label="Número">{produto.numeracao}</td>
+                      <td data-label="Ação"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Grid>
 
-            <Grid item xs={6} sm={3}>
-              <TextField
-                // required
-                type="date"
-                label="Data da venda"
-                // value="22/10/2023"
-                className="input"
-                id="outlined-basic"
-                variant="standard"
-              />
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <TextField
-                // required
-                type="number"
-                value={valorVenda}
-                onChange={(e) => setValorVenda(e.target.value)}
-                label="Valor Vendido"
-                className="input"
-                id="outlined-basic"
-                variant="standard"
-              />{" "}
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel
-                // required
-                id="demo-simple-select-label"
-                className="lbl-select"
-              >
-                Forma da Pagamento
-              </InputLabel>
-
-              <Select
-                // required
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={formaPagamentoSelected}
-                className="select input"
-                onChange={handleChangeFormaPagamento}
-              >
-                {listaFormaPagamento.map((item, index) => {
-                  return (
-                    <MenuItem key={index} value={item.id}>
-                      {item.descricao}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-              {/* </div> */}
-            </Grid>
-            {isParcelado && (
+              <Grid item xs={6} sm={3}>
+                <TextField
+                  // required
+                  type="date"
+                  label="Data da venda"
+                  // value="22/10/2023"
+                  className="input"
+                  id="outlined-basic"
+                  variant="standard"
+                />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <TextField
+                  // required
+                  type="number"
+                  value={valorVenda}
+                  onChange={(e) => setValorVenda(e.target.value)}
+                  label="Valor Vendido"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">R$</InputAdornment>
+                    ),
+                  }}
+                  className="input"
+                  id="outlined-basic"
+                  variant="standard"
+                />{" "}
+              </Grid>
               <Grid item xs={6} sm={3}>
                 <InputLabel
                   // required
                   id="demo-simple-select-label"
                   className="lbl-select"
                 >
-                  Quantidade de Parcelas
+                  Forma da Pagamento
                 </InputLabel>
 
                 <Select
                   // required
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={quantidadeParcelaSelected}
+                  value={formaPagamentoSelected}
                   className="select input"
-                  onChange={handleChangeQuantidadeParcelas}
+                  onChange={handleChangeFormaPagamento}
                 >
-                  {listaQuantidadeParcelas.map((item, index) => {
+                  {listaFormaPagamento.map((item, index) => {
                     return (
-                      <MenuItem key={index} value={item.value}>
-                        {item.label}
+                      <MenuItem key={index} value={item.id}>
+                        {item.descricao}
                       </MenuItem>
                     );
                   })}
                 </Select>
+                {/* </div> */}
               </Grid>
-            )}
-            {isParcelado && (
-              <Grid item xs={6} sm={3}>
-                <TextField
-                  type="number"
-                  label="Valor Entrada"
-                  value={valorEntrada}
-                  onChange={(e) => setValorEntrada(e.target.value)}
-                  className="input"
-                  id="outlined-basic"
-                  variant="standard"
-                />
-              </Grid>
-            )}
-
-            {isParcelado && (
-              <Grid item xs={6} sm={3}>
-                <TextField
-                  type="text"
-                  label=" "
-                  disabled={true}
-                  value={descricaoFormaPagamento}
-                  // onChange={(e) => setValorEntrada(e.target.value)}
-                  className="input"
-                  id="outlined-basic"
-                  variant="standard"
-                />
-              </Grid>
-            )}
-
-            {isParcelado && (
-              <Grid item xs={6} sm={3}>
-                <TextField
-                  type="date"
-                  label="Data Primeira Parcela"
-                  value={dataPrimeiraParcela}
-                  onChange={(e) => setDataPrimeiraParcela(e.target.value)}
-                  className="input"
-                  id="outlined-basic"
-                  variant="standard"
-                />
-              </Grid>
-            )}
-            {isParcelado && (
-              <Grid item xs={6} sm={3}>
-                <Accordion className="input">
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
+              {isParcelado && (
+                <Grid item xs={6} sm={3}>
+                  <InputLabel
+                    // required
+                    id="demo-simple-select-label"
+                    className="lbl-select"
                   >
-                    <Typography>Parcelas</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <TabelaDatasPagamento dataInicial={dataPrimeiraParcela} valorParcela={valorParcela} quantidadeParcela={quantidadeParcelaSelected}/>
-                  </AccordionDetails>
-                </Accordion>
+                    Quantidade de Parcelas
+                  </InputLabel>
 
-                {/* <table className="input" style={{fontSize : '8px', with: '30%'}}>
+                  <Select
+                    // required
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={quantidadeParcelaSelected}
+                    className="select input"
+                    onChange={handleChangeQuantidadeParcelas}
+                  >
+                    {listaQuantidadeParcelas.map((item, index) => {
+                      return (
+                        <MenuItem key={index} value={item.value}>
+                          {item.label}
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </Grid>
+              )}
+              {isParcelado && (
+                <Grid item xs={6} sm={3}>
+                  <TextField
+                    type="number"
+                    label="Valor Entrada"
+                    value={valorEntrada}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    }}
+                    onChange={(e) => setValorEntrada(e.target.value)}
+                    className="input"
+                    id="outlined-basic"
+                    variant="standard"
+                  />
+                </Grid>
+              )}
+
+              {isParcelado && (
+                <Grid item xs={6} sm={3}>
+                  <TextField
+                    type="text"
+                    label=" "
+                    disabled={true}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">R$</InputAdornment>
+                      ),
+                    }}
+                    value={descricaoFormaPagamento}
+                    // onChange={(e) => setValorEntrada(e.target.value)}
+                    className="input"
+                    id="outlined-basic"
+                    variant="standard"
+                  />
+                </Grid>
+              )}
+
+              {isParcelado && (
+                <Grid item xs={6} sm={3}>
+                  <TextField
+                    type="date"
+                    label="Data Primeira Parcela"
+                    value={dataPrimeiraParcela}
+                    onChange={(e) => setDataPrimeiraParcela(e.target.value)}
+                    className="input"
+                    id="outlined-basic"
+                    variant="standard"
+                  />
+                </Grid>
+              )}
+              {isParcelado && (
+                <Grid item xs={6} sm={3}>
+                  <Accordion className="input">
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography>Parcelas</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <TabelaDatasPagamento
+                        dataInicial={dataPrimeiraParcela}
+                        valorParcela={valorParcela}
+                        quantidadeParcela={quantidadeParcelaSelected}
+                      />
+                    </AccordionDetails>
+                  </Accordion>
+
+                  {/* <table className="input" style={{fontSize : '8px', with: '30%'}}>
                   <thead>
                     <tr>
                       <th>N</th>
@@ -405,52 +453,54 @@ export default function RegistrarVenda() {
                     </tr>
                   </tbody>
                 </table> */}
+                </Grid>
+              )}
+              <Grid item xs={6} sm={6}>
+                <TextField
+                  type="text"
+                  label="Cliente"
+                  // value={valorEntrada}
+                  // onChange={(e) => setValorEntrada(e.target.value)}
+                  className="input"
+                  id="outlined-basic"
+                  variant="standard"
+                />
               </Grid>
-            )}
-            <Grid item xs={6} sm={6}>
-              <TextField
-                type="text"
-                label="Cliente"
-                // value={valorEntrada}
-                // onChange={(e) => setValorEntrada(e.target.value)}
-                className="input"
-                id="outlined-basic"
-                variant="standard"
-              />
+              <Grid item xs={6} sm={6}>
+                <TextField
+                  type="text"
+                  label="Contato"
+                  // value={valorEntrada}
+                  // onChange={(e) => setValorEntrada(e.target.value)}
+                  className="input"
+                  id="outlined-basic"
+                  variant="standard"
+                />
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <CardActions className="group-btn">
+                  <Button
+                  // type="submit"
+                     onClick={salvarVenda}
+                    className="btn-salvar"
+                    color="primary"
+                    variant="contained"
+                    // disabled={saveLoad}
+                  >
+                    Salvar
+                  </Button>
+                  <Button
+                    // onClick={limpar}
+                    className="btn-salvar"
+                    variant="contained"
+                    color="secondary"
+                  >
+                    Limpar
+                  </Button>
+                </CardActions>
+              </Grid>
             </Grid>
-            <Grid item xs={6} sm={6}>
-              <TextField
-                type="text"
-                label="Contato"
-                // value={valorEntrada}
-                // onChange={(e) => setValorEntrada(e.target.value)}
-                className="input"
-                id="outlined-basic"
-                variant="standard"
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <CardActions className="group-btn">
-                <Button
-                  // onClick={salvar}
-                  className="btn-salvar"
-                  color="primary"
-                  variant="contained"
-                  // disabled={saveLoad}
-                >
-                  Salvar
-                </Button>
-                <Button
-                  // onClick={limpar}
-                  className="btn-salvar"
-                  variant="contained"
-                  color="secondary"
-                >
-                  Limpar
-                </Button>
-              </CardActions>
-            </Grid>
-          </Grid>
+          </form>
         </div>
       </div>
     </PersistentDrawerLeft>
