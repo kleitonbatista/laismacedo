@@ -1,7 +1,7 @@
 import PersistentDrawerLeft from "../../components/Drawer/drawer";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import { Button, TextField } from "@mui/material";
+import { Button, Checkbox, FormControlLabel, TextField } from "@mui/material";
 import CardActions from "@material-ui/core/CardActions";
 
 import firebase from "../../service/firebaseConnection";
@@ -62,6 +62,10 @@ export default function RegistrarVenda() {
   const [valorParcela, setValorParcela] = useState();
   const [descricaoFormaPagamento, setDescricaoFormaPagamento] = useState();
   const [dataPrimeiraParcela, setDataPrimeiraParcela] = useState();
+  const [contato, setContato] = useState();
+  const [cliente, setCliente] = useState();
+  const [dataVenda, setDataVenda] = useState();
+  const [recebidoCompleto, setRecebidoCompleto] = useState(false);
 
   // id do produto a ser editado
   const { id } = useParams();
@@ -197,27 +201,63 @@ export default function RegistrarVenda() {
     calculoValorParcela();
   }, [valorEntrada, valorVenda, quantidadeParcelaSelected]);
 
-  async function salvarVenda(e){
+  function validaCampos() {
+    if (dataVenda == undefined || dataVenda.trim().length == 0) {
+      toast.error("informe a data da venda");
+      return false;
+    }
+    if (valorVenda == undefined || valorVenda.trim().length == 0) {
+      toast.error("Informe o valor da venda");
+      return false;
+    }
+    if (
+      formaPagamentoSelected == undefined ||
+      formaPagamentoSelected.trim().length == 0
+    ) {
+      toast.error("Informe a forma de pagamento!");
+      return false;
+    }
+    return true;
+  }
+  async function salvarVenda(e) {
+    if (!validaCampos()) {
+      return;
+    }
     let venda = {
-      produtoId : produto.id ,
+      produtoId: produto.id,
       categoriaId: produto.categoriaId,
       codigoProduto: produto.codigo,
       descricaoProduto: produto.descricaoProduto,
       percentualPrevisto: produto.percentual,
       valorOriginal: produto.valor,
       valorPrevistoVenda: produto.valorVenda,
-      valorVendaReal : valorVenda,
+      valorVendaReal: valorVenda,
       formaPagamento: formaPagamentoSelected,
-      quantidadeParcela: quantidadeParcelaSelected,
-      dataVenda: "",
-      dataPrimeiraParcela: "",
-      valorEntrada:  valorEntrada,
-      cliente : "",
-      contatoCliente : "",
-      recebidoCompleto : true,
-      quantidadeItemVendido : 1
-    }
-    await firebase.firestore().collection("venda").add(venda).then((res)=>console.log(res)).catch((err)=>console.log(err))
+      quantidadeParcela:
+        quantidadeParcelaSelected == undefined
+          ? null
+          : quantidadeParcelaSelected,
+      dataVenda: dataVenda,
+      dataPrimeiraParcela:
+        dataPrimeiraParcela == undefined ? null : dataPrimeiraParcela,
+      valorEntrada: valorEntrada == undefined ? null : valorEntrada,
+      cliente: cliente,
+      contatoCliente: contato,
+      recebidoCompleto: recebidoCompleto,
+      quantidadeItemVendido: 1,
+    };
+    await firebase
+      .firestore()
+      .collection("venda")
+      .add(venda)
+      .then((res) => {
+        toast.success("Venda registrada!");
+        console.log(res);
+      })
+      .catch((err) => {
+        toast.error("Erro ao registrar venda!");
+        console.log(err);
+      });
     alert("salvar");
     e.preventdefault();
 
@@ -227,7 +267,7 @@ export default function RegistrarVenda() {
     <PersistentDrawerLeft>
       <div className="container main box center">
         <div className={classes.root}>
-          <form >
+          <form>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Paper className={classes.paper}>
@@ -275,6 +315,8 @@ export default function RegistrarVenda() {
                   type="date"
                   label="Data da venda"
                   // value="22/10/2023"
+                  value={dataVenda}
+                  onChange={(e) => setDataVenda(e.target.value)}
                   className="input"
                   id="outlined-basic"
                   variant="standard"
@@ -422,45 +464,14 @@ export default function RegistrarVenda() {
                       />
                     </AccordionDetails>
                   </Accordion>
-
-                  {/* <table className="input" style={{fontSize : '8px', with: '30%'}}>
-                  <thead>
-                    <tr>
-                      <th>N</th>
-                      <th>Data</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>24/02/2023</td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>24/02/2023</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>24/02/2023</td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>24/02/2023</td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>24/02/2023</td>
-                    </tr>
-                  </tbody>
-                </table> */}
                 </Grid>
               )}
               <Grid item xs={6} sm={6}>
                 <TextField
                   type="text"
                   label="Cliente"
-                  // value={valorEntrada}
-                  // onChange={(e) => setValorEntrada(e.target.value)}
+                  value={cliente}
+                  onChange={(e) => setCliente(e.target.value)}
                   className="input"
                   id="outlined-basic"
                   variant="standard"
@@ -470,18 +481,32 @@ export default function RegistrarVenda() {
                 <TextField
                   type="text"
                   label="Contato"
-                  // value={valorEntrada}
-                  // onChange={(e) => setValorEntrada(e.target.value)}
+                  value={contato}
+                  onChange={(e) => setContato(e.target.value)}
                   className="input"
                   id="outlined-basic"
                   variant="standard"
                 />
               </Grid>
+              <Grid item xs={6} sm={6}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={recebidoCompleto}
+                      onChange={(e) => {
+                        setRecebidoCompleto(!recebidoCompleto);
+                      }}
+                    />
+                  }
+                  label="Pagamento já realizado por completo?"
+                />
+              </Grid>
+
               <Grid item xs={12} sm={12}>
                 <CardActions className="group-btn">
                   <Button
-                  // type="submit"
-                     onClick={salvarVenda}
+                    // type="submit"
+                    onClick={salvarVenda}
                     className="btn-salvar"
                     color="primary"
                     variant="contained"
@@ -504,31 +529,5 @@ export default function RegistrarVenda() {
         </div>
       </div>
     </PersistentDrawerLeft>
-
-    //           <fieldset>
-    //             <legend>Dados Sobre a Venda</legend>
-    //             <label>Data da venda dd/mm/yyyy</label>
-    //             <br />
-    //             <label>valor vendido: R$ xx</label>
-    //             <br />
-    //             <label>Forma te pagamento: Pix, Dinheiro, Parcelado</label>
-    //             <br />
-    //             <label>Quantidade de parcelas N</label>
-    //             <br />
-    //             <label>Data primeira parecela dd/mm/yyyy</label>
-    //             <br />
-    //             <label>Valor previsto das parcelas: R$ xx.xx</label>
-    //             <br />
-    //             <label>Entrada: S, Valor: R$ XX </label>
-    //             <br />
-    //             <label>Nome Cliente: Fulano de Tal</label>
-    //             <br />
-    //             <label>Telefone contato: (xx) xxxxx-xxxx</label> <br />
-    //           </fieldset>
-    //         </div>
-    //       </Grid>
-    //     </div>
-    //   </div>
-    // </PersistentDrawerLeft>
   );
 }
