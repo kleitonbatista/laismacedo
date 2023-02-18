@@ -258,10 +258,8 @@ export default function RegistrarVenda() {
         toast.error("Erro ao registrar venda!");
         console.log(err);
       });
-    alert("salvar");
     e.preventdefault();
 
-    console.log(produto);
   }
   return (
     <PersistentDrawerLeft>

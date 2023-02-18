@@ -179,6 +179,14 @@ export default function PersistentDrawerLeft({ children }) {
               <ListItemText primary="Listar Itens"/>
             </ListItemButton>
           </Link>
+          <Link to="/listar-venda" className="link-btn">
+            <ListItemButton>
+              <ListItemIcon>
+                <FormatListBulletedIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Listar Vendas"/>
+            </ListItemButton>
+          </Link>
           {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton>

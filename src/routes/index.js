@@ -9,6 +9,7 @@ import SignIn from '../pages/SignIn';
 import SignUp from '../pages/SignUp';
 import Route from './Route';
 import ListarItens from '../pages/Itens';
+import ListarVendas from '../pages/Venda/listarVenda';
 
 export default function Routes(){
     return(
@@ -20,8 +21,7 @@ export default function Routes(){
             <Route exact isPrivate={true} path="/cadastro-item/:id?" component={CadastroItem}/>
             <Route exact isPrivate={true} path="/listar-itens" component={ListarItens}/>
             <Route exact isPrivate={true} path="/registrar-venda/:id?" component={RegistrarVenda}/>
-
-
+            <Route exact isPrivate={true} path="/listar-venda" component={ListarVendas}/>
             {/* <Route exact isPrivate={true} path="/drawer"  component={PersistentDrawerLeft}/> */}
         </Switch>
     );
