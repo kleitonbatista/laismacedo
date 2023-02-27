@@ -1,7 +1,13 @@
 import PersistentDrawerLeft from "../../components/Drawer/drawer";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import { Button, Checkbox, FormControlLabel, TextField } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import CardActions from "@material-ui/core/CardActions";
 
 import firebase from "../../service/firebaseConnection";
@@ -23,10 +29,12 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Typography from "@mui/material/Typography";
 import TabelaDatasPagamento from "../../components/TabelaDatasPagamento/tabelaDatasPagamento";
 
+import SearchIcon from "@mui/icons-material/Search";
+
 import { doc, setDoc } from "firebase/firestore";
+import DetalhamentoVenda from "../../components/Modal/modalDetalhamentoVenda";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,10 +58,17 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 12,
   },
 }));
+
 export default function ListarVendas() {
   const classes = useStyles();
   const [listaVendas, setListaVendas] = useState([]);
+  const [listaCategorias, setListaCategorias] = useState([]);
+  const [listaIdsCategorias, setIdsCategorias] = useState([]);
+  const [vendaSelecionada, setVendaSelecionada] = useState(0);
 
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   useEffect(() => {
     async function recuperaItensVendidos() {
       await firebase
@@ -62,7 +77,9 @@ export default function ListarVendas() {
         .get()
         .then(async (snapshot) => {
           let vendas = [];
+          let ids = [];
           snapshot.forEach((doc) => {
+            ids.push(doc.data().categoriaId);
             vendas.push({
               id: doc.id,
               categoriaId: doc.data().categoriaId,
@@ -83,59 +100,40 @@ export default function ListarVendas() {
               valorPrevistoVenda: doc.data().valorPrevistoVenda,
               valorVendaReal: doc.data().valorVendaReal,
             });
-            setListaVendas(vendas);
-            // await firebase
-            //   .firestore("categorias")
-            //   .doc(doc.data().categoriaId)
-            //   .get()
-            //   .then((snap) => {
-            //     categoriaDesc = snap.data().nomeCategoria;
-            //     console.log("categoria");
-            //     console.log(categoriaDesc);
-            //   })
-            //   .catch((err) => toast.error("error ao recuperar a categoria"));
-            /*firebase
-              .firestore()
-              .collection("produtos")
-              .doc(doc.data().produtoId)
-              .then((snapProduto) => {
-                let produto = snapProduto.data();
-                console.log("produto");
-                console.log(produto);
-              })
-              .catch((e) => toast.error("erro ao recuperar o produto"));
-            firebase
-              .firestore()
-              .collection("dominioTipoPagamento")
-              .doc(doc.data().formaPagamento)
-              .then((snapPagamento) => {
-                let formaPagamento = snapPagamento.data();
-                console.log("formaPagamento");
-                console.log(formaPagamento);
-              });*/
-            console.log(doc.data());
           });
+          setListaVendas(vendas);
+          setIdsCategorias(ids);
         })
         .catch((erro) => {
           toast.error("Erro ao recuperar itens vendidos");
         });
     }
+
+    recuperaItensVendidos();
+  }, []);
+  useEffect(() => {
     async function recuperaCategoria(categoriaId) {
       let categoriaDesc = "";
 
       await firebase
         .firestore()
         .collection("categorias")
-        .where(firebase.firestore.FieldPath.documentId(), "in", [
-          "mfxa3pKHfLHoQoiSsr8E",
-          "YRYmVeFhUhWLk1MTUGbe",
-        ])
+        .where(
+          firebase.firestore.FieldPath.documentId(),
+          "in",
+          listaIdsCategorias
+        )
         .get()
         .then((snap) => {
           console.log(snap);
+          let categorias = [];
           snap.forEach((doc) => {
-            console.log(doc.data());
+            categorias.push({
+              idCategoria: doc.id,
+              nomeCategoria: doc.data().nomeCategoria,
+            });
           });
+          setListaCategorias(categorias);
         })
         .catch((err) => {
           console.log(err);
@@ -143,10 +141,8 @@ export default function ListarVendas() {
         });
       return categoriaDesc;
     }
-    recuperaItensVendidos();
     recuperaCategoria();
-  }, []);
-  console.log(listaVendas);
+  }, [listaIdsCategorias]);
 
   return (
     <PersistentDrawerLeft>
@@ -167,7 +163,48 @@ export default function ListarVendas() {
                 </Paper>
               </Grid>
               <Grid item xs={12} sm={12}>
-                <table></table>
+                <h2>Vendas</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Categoria</th>
+                      <th scope="col">Código</th>
+                      <th scope="col">Produto</th>
+                      <th scope="col">Valor Venda</th>
+                      <th scope="col">Lucro</th>
+                      <th scope="col">Cliente</th>
+                      <th scope="col">Pagamento Concluído</th>
+                      <th scope="col">#</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {listaVendas.map((v, i) => {
+                      return (
+                        <tr>
+                          <td>
+                            {listaCategorias.length > 0 &&
+                              listaCategorias.find(
+                                ({ idCategoria }) =>
+                                  idCategoria == v.categoriaId
+                              ).nomeCategoria}
+                          </td>
+                          <td>{v.codigoProduto}</td>
+                          <td>{v.descricaoProduto}</td>
+                          <td>{v.valorVendaReal}</td>
+                          <td>{v.valorVendaReal - v.valorOriginal}</td>
+                          <td>{v.cliente}</td>
+                          <td>{v.recebidoCompleto ? "Sim" : "Não"}</td>
+                          <td>
+                            <IconButton color="primary" onClick={(e)=>{handleOpen(); setVendaSelecionada(v.id)}}>
+                              <SearchIcon size="small" />
+                            </IconButton>
+                            {/* </Button> */}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
                 <div>
                   <h3>filtros</h3>
                 </div>
@@ -179,6 +216,8 @@ export default function ListarVendas() {
 
               <Grid item xs={12} sm={12}>
                 <CardActions className="group-btn">
+                <h1> {vendaSelecionada}</h1>
+
                   <Button
                     // type="submit"
                     // onClick={salvarVenda}
@@ -203,6 +242,8 @@ export default function ListarVendas() {
           </form>
         </div>
       </div>
+      <DetalhamentoVenda openF={handleOpen} open={open} handleClose={handleClose} idVenda={vendaSelecionada}/>
+      
     </PersistentDrawerLeft>
   );
 }
